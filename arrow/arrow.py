@@ -1384,7 +1384,12 @@ class Arrow:
         # return a time shifted the opposite way. No locale's timeframe strings
         # contain a hyphen, so one in front of a digit can only have come from
         # the caller.
-        if re.search(r"-\d", input_string):
+        #
+        # A hyphen *between* digits is a separator, not a sign: "2020-01-01" is
+        # invalid input, but it is not a negative number, and saying so would send
+        # the caller looking for a sign that is not there. The lookbehind leaves
+        # those to the ordinary "not a valid humanized string" error below.
+        if re.search(r"(?<!\d)-\d", input_string):
             raise ValueError(
                 "Invalid input String. String contains a negative number. "
                 "Humanized strings express direction with words, not signs. "

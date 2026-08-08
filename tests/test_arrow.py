@@ -2930,6 +2930,24 @@ class TestArrowDehumanize:
             with pytest.raises(ValueError):
                 arw.dehumanize(empty_future_string, locale=lang)
 
+    def test_negative_number(self):
+        arw = arrow.Arrow(2000, 6, 18, 5, 55, 0)
+
+        for input_string in [
+            "in -1 hours",
+            "in -2 days",
+            "-3 minutes ago",
+            "in -1 years",
+        ]:
+            with pytest.raises(ValueError, match="negative number"):
+                arw.dehumanize(input_string)
+
+    def test_negative_number_not_confused_with_positive(self):
+        arw = arrow.Arrow(2000, 6, 18, 5, 55, 0)
+
+        assert arw.dehumanize("in 2 hours") == arw.shift(hours=2)
+        assert arw.dehumanize("2 hours ago") == arw.shift(hours=-2)
+
     def test_slavic_locales(self, slavic_locales: List[str]):
         # Relevant units for Slavic locale plural logic
         units = [
